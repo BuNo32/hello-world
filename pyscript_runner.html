@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>PyScript Runner</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <h1>PyScriptコード実行ページ</h1>
+    <textarea id="code" style="width:100%;height:150px;">print('Hello, PyScript!')</textarea>
+    <button id="run-btn">RUN</button>
+    <pre id="output" style="white-space:pre-wrap;border:1px solid #ccc;padding:1em;margin-top:1em;"></pre>
+
+    <py-script>
+from pyodide import create_proxy
+from js import document
+import sys, io
+
+
+def run_code(event=None):
+    code = document.getElementById("code").value
+    buffer = io.StringIO()
+    old_stdout = sys.stdout
+    sys.stdout = buffer
+    try:
+        exec(code, globals())
+        output = buffer.getvalue()
+    except Exception as e:
+        output = f"Error: {e}"
+    finally:
+        sys.stdout = old_stdout
+    document.getElementById("output").textContent = output
+
+button = document.getElementById("run-btn")
+button.addEventListener("click", create_proxy(run_code))
+    </py-script>
+</body>
+</html>
